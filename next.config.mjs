@@ -16,6 +16,13 @@ const nextConfig = {
       config.optimization.removeEmptyChunks = false;
       config.optimization.splitChunks = false;
     }
+
+    // Add fallback for node modules
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      "undici": false,
+    };
+
     return config;
   },
   images: {
@@ -41,14 +48,6 @@ const nextConfig = {
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "https://api.openai.com/:path*",
-      },
-    ];
   },
 };
 
