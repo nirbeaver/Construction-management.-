@@ -1,5 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
+  experimental: {
+    optimizeCss: true,
+  },
+  // Enable static optimization where possible
+  poweredByHeader: false,
+  compress: true,
+  // Improve development performance
+  webpack: (config, { dev, isServer }) => {
+    // Optimize development builds
+    if (dev) {
+      config.optimization.removeAvailableModules = false;
+      config.optimization.removeEmptyChunks = false;
+      config.optimization.splitChunks = false;
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {

@@ -31,3 +31,23 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Add these styles for PDF viewer */
+.pdf-document {
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pdf-document .react-pdf__Page {
+  max-width: 100%;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  margin-bottom: 1rem;
+}
+
+.pdf-document .react-pdf__Page canvas {
+  max-width: 100%;
+  height: auto !important;
+}

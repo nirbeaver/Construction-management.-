@@ -1,0 +1,105 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isProjectMember(projectData) {
+      return request.auth.uid in projectData.teamMembers || request.auth.uid == projectData.ownerId;
+    }
+    
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Projects collection
+    match /projects/{projectId} {
+      allow read: if isSignedIn() && (
+        isProjectMember(resource.data) || isAdmin()
+      );
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        isProjectMember(resource.data) || isAdmin()
+      );
+      allow delete: if isSignedIn() && (
+        isOwner(resource.data.ownerId) || isAdmin()
+      );
+    }
+
+    // Documents collection
+    match /documents/{documentId} {
+      allow read: if isSignedIn() && (
+        isProjectMember(get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data)
+      );
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && (
+        isOwner(resource.data.uploadedBy) || isAdmin()
+      );
+    }
+
+    // Transactions collection
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn() && (
+        isProjectMember(get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data)
+      );
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && (
+        isOwner(resource.data.createdBy) || isAdmin()
+      );
+    }
+
+    // Tasks collection
+    match /tasks/{taskId} {
+      allow read: if isSignedIn() && (
+        isProjectMember(get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data)
+      );
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        isProjectMember(get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data)
+      );
+      allow delete: if isSignedIn() && (
+        isOwner(resource.data.createdBy) || isAdmin()
+      );
+    }
+
+    // Comments collection
+    match /comments/{commentId} {
+      allow read: if isSignedIn() && (
+        isProjectMember(get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data)
+      );
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && (
+        isOwner(resource.data.createdBy) || isAdmin()
+      );
+    }
+
+    // Milestones collection
+    match /milestones/{milestoneId} {
+      allow read: if isSignedIn() && (
+        isProjectMember(get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data)
+      );
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        isProjectMember(get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data)
+      );
+      allow delete: if isSignedIn() && (
+        isOwner(resource.data.createdBy) || isAdmin()
+      );
+    }
+  }
+} 
