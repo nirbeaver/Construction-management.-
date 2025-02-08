@@ -38,6 +38,7 @@
     "tailwind-merge": "^3.0.1"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.9.4",
     "@shadcn/ui": "^0.0.4",
     "@types/node": "^22.13.1",
     "@types/react": "^19.0.8",
