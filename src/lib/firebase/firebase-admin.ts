@@ -1,5 +1,6 @@
-import * as admin from 'firebase-admin';
-import { getApps } from 'firebase-admin/app';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 
 // Check if we have the required environment variables
 const requiredEnvVars = {
@@ -22,7 +23,7 @@ if (!getApps().length) {
       : undefined;
 
     const config = {
-      credential: admin.credential.cert({
+      credential: cert({
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
         privateKey: privateKey,
@@ -35,7 +36,7 @@ if (!getApps().length) {
       credential: 'CREDENTIALS_HIDDEN',
     });
 
-    admin.initializeApp(config);
+    initializeApp(config);
     console.log('Firebase Admin initialized successfully');
   } catch (error: any) {
     console.error('Firebase Admin initialization error:', error.message);
@@ -44,5 +45,5 @@ if (!getApps().length) {
   }
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore(); 
+export const adminAuth = getAuth();
+export const adminDb = getFirestore(); 
