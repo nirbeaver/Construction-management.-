@@ -14,9 +14,12 @@ import {
   query,
   where,
   DocumentReference,
+  getDoc,
+  Timestamp
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Project } from '@/types/project';
+import { Property } from '@/types/property';
 
 // Auth functions
 export const logoutUser = () => signOut(auth);
@@ -57,42 +60,98 @@ export const uploadFile = async (file: File, path: string) => {
   return getDownloadURL(storageRef);
 };
 
-// Create a new project
+// Project Functions
 export async function createProject(userId: string, project: Omit<Project, 'id'>) {
-  try {
-    const projectsRef = collection(db, 'projects');
-    const docRef = await addDoc(projectsRef, {
-      ...project,
-      userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-    
-    return {
-      id: docRef.id,
-      ...project,
-    };
-  } catch (error) {
-    console.error('Error creating project:', error);
-    throw error;
-  }
+  const projectRef = await addDoc(collection(db, 'projects'), {
+    ...project,
+    userId,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  });
+
+  return {
+    id: projectRef.id,
+    ...project
+  };
 }
 
-// Get all projects for a user
 export async function getUserProjects(userId: string) {
-  try {
-    const projectsRef = collection(db, 'projects');
-    const q = query(projectsRef, where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Project[];
-  } catch (error) {
-    console.error('Error getting user projects:', error);
-    throw error;
-  }
+  const projectsQuery = query(
+    collection(db, 'projects'),
+    where('userId', '==', userId)
+  );
+
+  const snapshot = await getDocs(projectsQuery);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  })) as Project[];
+}
+
+// Property Functions
+export async function createProperty(userId: string, property: Omit<Property, 'id'>) {
+  const propertyRef = await addDoc(collection(db, 'properties'), {
+    ...property,
+    userId,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  });
+
+  return {
+    id: propertyRef.id,
+    ...property
+  };
+}
+
+export async function getUserProperties(userId: string) {
+  const propertiesQuery = query(
+    collection(db, 'properties'),
+    where('userId', '==', userId)
+  );
+
+  const snapshot = await getDocs(propertiesQuery);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  })) as Property[];
+}
+
+// Report Types
+export interface Report {
+  id: string;
+  name: string;
+  type: 'Progress' | 'Financial' | 'Summary';
+  date: string;
+  projectId?: string;
+  data: any;
+  status: 'Generated' | 'Processing' | 'Failed';
+}
+
+// Report Functions
+export async function createReport(userId: string, report: Omit<Report, 'id'>) {
+  const reportRef = await addDoc(collection(db, 'reports'), {
+    ...report,
+    userId,
+    createdAt: Timestamp.now(),
+  });
+
+  return {
+    id: reportRef.id,
+    ...report
+  };
+}
+
+export async function getUserReports(userId: string) {
+  const reportsQuery = query(
+    collection(db, 'reports'),
+    where('userId', '==', userId)
+  );
+
+  const snapshot = await getDocs(reportsQuery);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  })) as Report[];
 }
 
 // Update a project

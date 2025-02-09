@@ -9,18 +9,16 @@ export function middleware(request: NextRequest) {
   const isPublicPath = publicPaths.includes(pathname);
 
   // Get the token from cookies
-  const token = request.cookies.get('session')?.value;
+  const session = request.cookies.get('session');
 
-  // If the path is public and user is logged in, redirect to projects
-  if (isPublicPath && token) {
-    return NextResponse.redirect(new URL('/projects', request.url));
+  // If the user is not logged in and trying to access a protected route
+  if (!session && !isPublicPath) {
+    return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
-  // If the path is protected and user is not logged in, redirect to login
-  if (!isPublicPath && !token) {
-    const response = NextResponse.redirect(new URL('/auth/signin', request.url));
-    response.cookies.delete('session');
-    return response;
+  // If the user is logged in and trying to access auth pages
+  if (session && isPublicPath && pathname !== '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();

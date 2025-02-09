@@ -1,12 +1,19 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  site_id = "45f9cf81-a9ff-43b0-b9be-972076ead512"
 
 [build.environment]
   NEXT_USE_NETLIFY_EDGE = "true"
   NEXT_PRIVATE_TARGET = "server"
-  NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps"
+  NODE_VERSION = "16"
+  NEXT_TELEMETRY_DISABLED = "1"
+  NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyADvG6THoYN_RJDlCnV3o0pb71YKWeR5R4
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=construction-management-c9150.firebaseapp.com
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID=construction-management-c9150
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=construction-management-c9150.firebasestorage.app
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=212193368586
+  NEXT_PUBLIC_FIREBASE_APP_ID=1:212193368586:web:f4a6461762fab93725ddf3
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -18,4 +25,27 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'" 
+    Content-Security-Policy = "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval' *.googleapis.com *.gstatic.com *.firebaseapp.com"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[functions]
+  node_bundler = "esbuild"
+
+[build.processing]
+  skip_processing = false
+
+[dev]
+  framework = "#next"
+  publish = "out"
+  functions = "netlify/functions"
+  targetPort = 3000 

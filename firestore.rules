@@ -22,7 +22,9 @@ service cloud.firestore {
     // Users collection
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && 
+        request.resource.data.keys().hasAll(['email', 'displayName', 'createdAt']) &&
+        request.resource.data.role == 'user';
       allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
       allow delete: if isAdmin();
     }

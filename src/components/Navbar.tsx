@@ -1,86 +1,41 @@
 'use client';
 
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
 
 export function Navbar() {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-  const { toast } = useToast();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast({
-        title: 'Success',
-        description: 'Logged out successfully',
-      });
-      router.push('/');
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to log out',
-        variant: 'destructive',
-      });
-    }
-  };
+  const { user, signOut } = useAuth();
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-gray-900">
-                Your App Name
-              </Link>
-            </div>
-            {user && (
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  href="/projects"
-                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
-                >
-                  Projects
-                </Link>
-                {/* Add more navigation links as needed */}
-              </div>
-            )}
-          </div>
           <div className="flex items-center">
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    {user.displayName || user.email}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleLogout}>
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex space-x-4">
-                <Link href="/auth/signin">
-                  <Button variant="outline">Sign In</Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button>Sign Up</Button>
-                </Link>
-              </div>
-            )}
+            <Link href="/" className="text-xl font-bold text-gray-900">
+              Construction Management
+            </Link>
           </div>
+          
+          {user && (
+            <div className="flex items-center space-x-4">
+              <Link href="/projects">
+                <Button variant="ghost">Projects</Button>
+              </Link>
+              <Link href="/properties">
+                <Button variant="ghost">Properties</Button>
+              </Link>
+              <Link href="/reports">
+                <Button variant="ghost">Reports</Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => signOut()}
+              >
+                Sign Out
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </nav>
